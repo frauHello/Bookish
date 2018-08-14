@@ -96,6 +96,9 @@ def enableProguardInReleaseBuilds = false
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
+dexOptions {
+        jumboMode true
+    }
 
     defaultConfig {
         applicationId "com.booky"
@@ -153,6 +156,9 @@ dependencies {
     compile "com.google.firebase:firebase-storage:${googlePlayVer}"
     compile "com.google.firebase:firebase-firestore:${googlePlayVer}"
   //compile "com.google.firebase:firebase-perf:${googlePlayVer}"
+  compile (project(':react-native-fbsdk')) {
+        exclude group: 'com.google.android.gms'
+}
 }
 
 // Run this once to be able to run the application with BUCK

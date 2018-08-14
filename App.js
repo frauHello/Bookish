@@ -1,15 +1,10 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow
- */
-
 import React, {Component} from 'react';
 import { StyleSheet,TextInput,Button, Text, View} from 'react-native';
 import firebase from 'react-native-firebase';
 
+const FBSDK = require('react-native-fbsdk');
+
+const {LoginButton,AccessToken} = FBSDK;
 
 
 
@@ -18,6 +13,34 @@ export default class App extends Component {
   state = { email: '', 
   password: '', 
   errorMessage: null }
+
+  onLoginOrRegister = () => {
+    LoginManager.logInWithReadPermissions(['public_profile', 'email'])
+      .then((result) => {
+        if (result.isCancelled) {
+          return Promise.reject(new Error('The user cancelled the request'));
+        }
+        // Retrieve the access token
+        return AccessToken.getCurrentAccessToken();
+      })
+      .then((data) => {
+        // Create a new Firebase credential with the token
+        const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
+        // Login with the credential
+        return firebase.auth().signInWithCredential(credential);
+      })
+      .then((user) => {
+        // If you need to do anything with the user, do it here
+        // The user will be logged in automatically by the
+        // `onAuthStateChanged` listener we set up in App.js earlier
+      })
+      .catch((error) => {
+        const { code, message } = error;
+        // For details of error codes, see the docs
+        // The message contains the default Firebase string
+        // representation of the error
+      });
+  }
 handleSignUp = () => {
     firebase
     .auth()
@@ -31,7 +54,7 @@ handleSignUp = () => {
 
     return (
       <View style={styles.containerrr}>
-      <Text>Sign Up</Text>
+      {/* <Text>Sign Up</Text>
       {this.state.errorMessage &&
         <Text style={{ color: 'red' }}>
           {this.state.errorMessage}
@@ -55,10 +78,40 @@ handleSignUp = () => {
       <Button
         title="Already have an account? Login"
         //onPress={() => this.props.navigation.navigate('Login')}
-      />
-    </View>
-    );
-  }
+      /> */}
+      <LoginButton
+
+onLoginFinished={(error, result) => {
+
+if (error) {
+
+  console.log("login has error: " + result.error);
+
+} else if (result.isCancelled) {
+
+  console.log("login is cancelled.");
+
+} else {
+
+  AccessToken.getCurrentAccessToken().then(
+
+    (data) => {
+
+      console.log(data);
+      onLoginOrRegister();
+      
+
+    }
+
+  )
+
+}
+
+}}
+
+onLogoutFinished={() => console.log("logout.")}/>
+    </View> 
+    );}
 }
 
 const styles = StyleSheet.create({

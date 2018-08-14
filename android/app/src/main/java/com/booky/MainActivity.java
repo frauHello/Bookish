@@ -1,6 +1,8 @@
 package com.booky;
 
 import com.facebook.react.ReactActivity;
+import android.content.Intent;
+///the last statement have been added
 
 public class MainActivity extends ReactActivity {
 
@@ -12,4 +14,10 @@ public class MainActivity extends ReactActivity {
     protected String getMainComponentName() {
         return "Booky";
     }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        MainApplication.getCallbackManager().onActivityResult(requestCode, resultCode, data);
+    }
+
 }
