@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "939255607410",
+    "firebase_url": "https://booky-e7668.firebaseio.com",
+    "project_id": "booky-e7668",
+    "storage_bucket": "booky-e7668.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:939255607410:android:fbd1d76a8cca8e2b",
+        "android_client_info": {
+          "package_name": "com.booky"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "939255607410-m3fc62hhevet2302on3b6845fvkmf5cj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCl7HO-i4ObBGBiapueqCiy0rLISKkWB4k"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
