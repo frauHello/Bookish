@@ -5,6 +5,7 @@ import { Provider } from 'react-redux';
 import firebase from 'react-native-firebase';
 import configureStore from '../../store/ConfigureStore';
 import CustomButton from '../../components/UI/CustomButton/CustomButton';
+import facebookLogout from '../../utility/facebook/facebookLogout';
 const store = configureStore();
 class Main extends React.Component {
 
@@ -18,7 +19,10 @@ class Main extends React.Component {
              style: 'cancel'},
             {text: 'YES', onPress: () => {
            //console.warn('YES Pressed'),
-            firebase.auth().signOut() }}
+            firebase.auth().signOut();
+            facebookLogout();
+        
+        }}
           ]
         );
       }

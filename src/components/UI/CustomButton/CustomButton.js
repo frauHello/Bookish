@@ -5,7 +5,7 @@ import { Text, TouchableOpacity, View, StyleSheet } from "react-native";
 const CustomButton= props => {
     const content = (
         <View style={[styles.button, { backgroundColor: props.color }, props.disabled ? styles.disabled : null]}>
-            <Text style= {props.disabled ? styles.disabledText:null}>{props.children}  </Text>
+            <Text style= {[styles.buttonText, { color: props.textcolor },props.disabled ? styles.disabledText:null]}>{props.children}  </Text>
         </View>
     );
 
@@ -24,21 +24,35 @@ const CustomButton= props => {
 const styles = StyleSheet.create({
 
     button: {
-        padding: 10,
-        margin: 5,
-        borderRadius: 5,
-        borderWidth: 1,
-        borderColor: "black"
+     
+        
+        alignItems:"center",
+       
+        marginTop:10,
+        padding:20,
+        height:20,
+        justifyContent: "center",
+        alignItems: "center"
+        
 
     },
     disabled: {
-        backgroundColor: "#eee",
-      
-        borderColor: "#aaa"
+        
+        backgroundColor:"#e5d8ca",
+       
+        
+ },
+ buttonText:
+ {
+color:"#27636d",
+fontWeight:"bold",
+
+
+
  },
  disabledText:{
 
-    color: "#aaa"
+    color: "#8f8f8f"
 
 
  }

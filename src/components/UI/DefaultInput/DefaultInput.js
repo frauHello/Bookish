@@ -16,16 +16,25 @@ const styles=StyleSheet.create({
 
    
     input:{
-    width:"100%",
+   
     borderWidth:1,
-    borderColor:"#eee",
-    padding:5,
-    margin:8
+    
+    alignSelf:'stretch',
+    height:40,
+    
+    marginBottom:20,
+    borderBottomColor:"#27636d",
+    borderBottomWidth:1,
+    color:"#27636d",
+    borderColor:"#e7e7d6"
+
+
+
   
     },
    invalid:{
-backgroundColor:'#f9c0c0',
-borderColor:"red"
+backgroundColor:'#b9b9ba',
+borderColor:"#bb5538"
 
 
 
