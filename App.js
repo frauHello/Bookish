@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import { Provider } from 'react-redux';
-import MainSwitchNavigator from './src/screen/Navigator/MainSwitchNavigator';
+import MainSwitchNavigator from './src/components/Navigator/MainSwitchNavigator';
 
 import configureStore from './src/store/ConfigureStore';
 const store = configureStore();

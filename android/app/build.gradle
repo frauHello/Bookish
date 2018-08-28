@@ -151,6 +151,7 @@ dependencies {
     compile "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
     compile "com.facebook.react:react-native:+"  // From node_modules
     compile project(':react-native-vector-icons')
+     compile project(':react-native-image-picker')
     compile "com.google.firebase:firebase-core:${googlePlayVer}"
     compile "com.google.firebase:firebase-auth:${googlePlayVer}"
   //compile "com.google.firebase:firebase-analytics:${googlePlayVer}"

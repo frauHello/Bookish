@@ -1,3 +1,9 @@
 
 export const UI_START_LOADING = "UI_START_LOADING";
 export const UI_STOP_LOADING = "UI_STOP_LOADING";
+export const fACEBOOK_AUTH ="FACEBOOK_AUTH";
+export const EMAIL_AUTH ="EMAIL_AUTH";
+export const FACEBOOK_AUTH="FACEBOOK_AUTH";
+export const PROFILE_IMAGE_EDIT="PROFILE_IMAGE_EDIT";
+export const SAVE_IN_REDUX='SAVE_IN_REDUX';
+export const ADD_FIELD='ADD_FIELD';

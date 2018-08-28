@@ -1,22 +1,24 @@
 import React, { Component } from 'react';
-import { View, Image,ActivityIndicator, StyleSheet, ImageBackground, KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { View, Image,ActivityIndicator, Button,StyleSheet, KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import DefaultInput from '../../components/UI/DefaultInput/DefaultInput';
-import { connect } from 'react-redux';
+import { connect,Provider } from 'react-redux';
 import CustomButton from "../../components/UI/CustomButton/CustomButton";
 import validate from '../../utility/Validation';
-import { Provider } from 'react-redux';
 import { tryAuth } from "../../store/actions/index";
+import {resetPassw } from "../../store/actions/reset";
+import facebookLogin from "../../utility/facebook/facebookLogin";
+import FacebookButton from "../../components/UI/CustomButton/FacebookButton";
 import configureStore from '../../store/ConfigureStore';
-import { resetPassw } from "../../store/actions/index";
-const FBSDK = require('react-native-fbsdk');
-const {AccessToken,GraphRequest, GraphRequestManager } = FBSDK;
-import facebookLogin from '../../utility/facebook/facebookLogin';
+import {saveInRedux} from "../../store/actions/index";
 
+const store = configureStore();
 
 export let navigatorRef = null;
 
-const store = configureStore();
+
 class AuthScreen extends Component {
+
+    
 
 state = {
 authMode: "login",
@@ -44,49 +46,17 @@ controls: {
  
     componentDidMount() {
         navigatorRef = this.props.navigation;
-        console.log('MypropIssue', navigatorRef);
+       
     }
     ForgotPasswordHandler = () => {
 
         const requiredMail = {
             email: this.state.controls.email.value
         };
-        this.props.onResetPassw(requiredMail, "login");
+        this.props.resetPassw(requiredMail, "login");
 
     }
     
-   
-      async FBLoginCallback(error, result) {
-        if (error) {
-          this.setState({
-            showLoadingModal: false,
-            //notificationMessage: I18n.t(‘welcome.FACEBOOK_GRAPH_REQUEST_ERROR’)
-          });
-        } else {
-          // Retrieve and save user details in state. In our case with 
-          // Redux and custom action saveUser
-          this.props.saveUser({
-            id: result.id,
-            email: result.email,
-            image: result.picture.data.url
-          });
-        }
-      }
-      async FBGraphRequest(fields, callback) {
-        const accessData = await AccessToken.getCurrentAccessToken();
-
-        // Create a graph request asking for user information
-        const infoRequest = new GraphRequest('/me', {
-          accessToken: accessData.accessToken,
-          parameters: {
-            fields: {
-              string: fields
-            }
-          }
-        }, callback.bind(this));
-        // Execute the graph request created above
-        new GraphRequestManager().addRequest(infoRequest).start();
-      }
     AuthHandler = () => {
         const authData = {
 
@@ -95,6 +65,12 @@ controls: {
         };
         this.props.onTryAuth(authData, this.state.authMode);
         
+    }
+
+    facebookLoginHandler=()=>{
+    this.props.onFacebookLogin();
+
+
     }
     
 
@@ -194,22 +170,28 @@ controls: {
                 <View>
                     <CustomButton 
                     textcolor="#27636d"
-                    onPress={() => { this.ForgotPasswordHandler() }}>
+                    onPress={() => { this.ForgotPasswordHandler() 
+                        }}>
                     FORGOTTEN PASSWORD?
                     </CustomButton>
+                    
+
                 </View>
+                
             );
         };
         if (this.state.authMode === 'login') {
 
              facebookControl = (  
               <View>
-               <CustomButton onPress={()=>facebookLogin()}
-               textcolor="#27636d" >
+               <FacebookButton onPress={()=>facebookLogin(this.props.onFacebookLogin) }
+               
+                 textcolor="#27636d" >
                  CONTINUE WITH FACEBOOK
                  
-                 </CustomButton>
+                 </FacebookButton>
            </View> 
+        
            );
 
         };
@@ -217,10 +199,11 @@ controls: {
             submitButton = <ActivityIndicator /> 
         }
         return (
-            <Provider store={store}>
+         
+      <Provider store={store}>
                 <View style={styles.MainContainer}>
                 
-                <Image style={styles.Image} source = {require('../../assets/my_logo_s.png')} />
+                <Image style={styles.Image} source = {require('../../assets/images/my_logo_s.png')} />
                   
                     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                         <View style={styles.textInput}>
@@ -257,7 +240,7 @@ controls: {
                      
 
                 </View>
-            </Provider>
+                </Provider>
 
         );
     }
@@ -317,7 +300,9 @@ const styles = StyleSheet.create({
 const mapDispatchToProps = dispatch => {
     return {
         onTryAuth: (authData, authMode) => dispatch(tryAuth(authData, authMode)),
-        onResetPassw: (requiredMail, authMode) => dispatch(resetPassw(requiredMail, authMode))
+        resetPassw:(requiredMail,authMode)=>dispatch(resetPassw(requiredMail,authMode)),
+        onFacebookLogin:(picture,name)=>dispatch(saveInRedux(picture,name))
+        
     };
 };
 const mapStateToProps = state => {

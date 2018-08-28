@@ -4,13 +4,13 @@ import firebase from 'react-native-firebase';
 export default class Loading extends React.Component {
     componentDidMount() {
         firebase.auth().onAuthStateChanged(user => {
-        this.props.navigation.navigate(user ? 'Main' : 'Auth')
+        this.props.navigation.navigate(user ? 'MainTabNavigator' : 'Auth')
         })
       }
   render() {
     return (
       <View style={styles.container}>
-      <Image style={styles.Image} source = {require('../../assets/my_logo_b.png')} />
+      <Image style={styles.Image} source = {require('../../assets/images/my_logo_b.png')} />
         <Text>Loading</Text>
         <ActivityIndicator size="large" />
       </View>

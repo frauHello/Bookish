@@ -4,7 +4,7 @@ import { Text, TouchableOpacity, View, StyleSheet } from "react-native";
 
 const CustomButton= props => {
     const content = (
-        <View style={[styles.button, { backgroundColor: props.color }, props.disabled ? styles.disabled : null]}>
+        <View style={[styles.button, { backgroundColor: props.color,width:props.width }, props.disabled ? styles.disabled : null]}>
             <Text style= {[styles.buttonText, { color: props.textcolor },props.disabled ? styles.disabledText:null]}>{props.children}  </Text>
         </View>
     );
