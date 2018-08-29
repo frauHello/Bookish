@@ -1,71 +1,79 @@
 import React, { Component } from 'react';
+import firebase from 'react-native-firebase';
+import { StyleSheet, FlatList, Text, View, ActivityIndicator } from 'react-native';
+import BookItem from './BookItem'
 
-import {
-  StatusBar,
-  StyleSheet,
-  FlatList,
- 
-  View
-} from 'react-native';
-
-import BookItem from '../../components/ExploreItem/BookItem';
 
 
 
 export default class Explore extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      books: [
-        {
-          id: 1,
-          title: 'Harry Potter and the Goblet of Fire',
-          author: 'J. K. Rowling',
-          thumbnail: 'https://covers.openlibrary.org/w/id/7984916-M.jpg'
-        },
-        {
-          id: 2,
-          title: 'The Hobbit',
-          author: 'J. R. R. Tolkien',
-          thumbnail: 'https://covers.openlibrary.org/w/id/6979861-M.jpg'
-        },
-        {
-          id: 3,
-          title: '1984',
-          author: 'George Orwell',
-          thumbnail: 'https://covers.openlibrary.org/w/id/7222246-M.jpg'
-        }
-      ]
-    }
+  state = {
+    books: [],
+    loading: true
+  }
+  constructor() {
+    super();
+    this.ref = firebase.firestore().collection('books');
+    this.unsubscribe = null;
+  }
+  componentDidMount() {
+    this.unsubscribe = this.ref.onSnapshot(this.onCollectionUpdate)
   }
 
-  _renderItem = ({item}) => (
-    <BookItem
-      id={item.id}
-      title={item.title}
-      author={item.author}
-      thumbnail={item.thumbnail}
-    />
-  );
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
+  onCollectionUpdate = (querySnapshot) => {
+    const books = [];
+    querySnapshot.forEach((doc) => {
+      const { title, author, description,cover } = doc.data();
+      books.push({
+        key: doc.id,
+        doc, // DocumentSnapshot
+        title,
+        author,
+        description,
+        cover
+      });
+    });
+    this.setState({
+      books,
+      loading: false,
+    });
 
-  _keyExtractor = (item, index) => item.id;
+
+  }
   render() {
+    if (this.state.loading) {
+      return (
 
-    return (
+        <View style={styles.loading}>
+          <ActivityIndicator size="large" />
+        </View>
 
-      <View style={styles.container}>
 
-         <StatusBar
-          barStyle="light-content"
-        />
-        <FlatList
-          data={this.state.books}
-          keyExtractor={this._keyExtractor}
-          renderItem={this._renderItem}
-        />
- </View>
+      );
 
-    );}}
+    }
+    else {
+      return (
+
+        <View style={styles.container}>
+
+          <Text style={styles.title}>
+            Here you can view already added books
+          </Text>
+          <FlatList
+            data={this.state.books}
+            renderItem={({ item }) => <BookItem {...item} />}
+          />
+        </View>
+
+
+      );
+    }
+  }
+}
 
 
 
@@ -74,24 +82,42 @@ const styles = StyleSheet.create({
   container: {
 
     flex: 1,
-
-    justifyContent: 'center',
-
     alignItems: 'center',
-
     backgroundColor: '#e7e7d6',
 
   },
 
   title: {
-
     fontSize: 20,
-
     textAlign: 'center',
-
     margin: 10,
-    color:"#27636d"
+    color: "#27636d"
 
-  }
+  },
+  Text: {
+    fontSize: 14,
+    color: "#27636d",
+    marginTop: 20
+
+
+  },
+  input: {
+    borderBottomColor: "#27636d",
+    borderBottomWidth: 2,
+    color: "#27636d",
+    width: "80%",
+    alignItems: "center"
+  },
+  add: {
+    fontSize: 12,
+    color: "#27636d",
+
+  },
+  loading: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: "#e7e7d6"
+  },
 
 });

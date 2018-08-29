@@ -11,24 +11,25 @@ import { Icon, Header, Avatar } from "react-native-elements";
 
 
 class Profile extends Component {
-  
+
 
   componentDidMount() {
     const { currentUser } = firebase.auth();
     this.props.onEmailAuth({ currentUser });
-   
+
 
   };
 
   render() {
-    let src=null;
-    if(this.props.flogin){
-     
-      src={uri:this.props.image};
+    let src = null;
+    if (this.props.flogin) {
+
+      src = { uri: this.props.image };
     }
-    else{src =this.props.image
-      
-  
+    else {
+      src = this.props.image
+
+
     };
 
 
@@ -58,7 +59,7 @@ class Profile extends Component {
         />
         <View style={styles.container}>
 
-        
+
           <View style={styles.ProfileImage}>
             <Avatar
               xlarge
@@ -68,7 +69,7 @@ class Profile extends Component {
             <Text style={styles.name}>{this.props.name}</Text>
             <Text style={styles.bio}>{this.props.bio}</Text>
           </View>
-          
+
           <View style={styles.infoSet}>
             <View style={styles.horizontal}>
               <Icon name='email' color="#bb5538" />
@@ -131,7 +132,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#e7e7d6",
     alignItems: "center",
     marginBottom: 5,
-    justifyContent:"center"
+    justifyContent: "center"
 
   },
 
@@ -172,32 +173,32 @@ const styles = StyleSheet.create({
     alignItems: "center"
 
   },
-  name:{
+  name: {
 
     fontSize: 20,
     color: "#27636d",
-    fontWeight:"bold"
+    fontWeight: "bold"
 
 
 
   },
-  bio:{
+  bio: {
 
     fontSize: 14,
     color: "#27636d",
-    fontStyle:"italic",
-    textAlign:"center"
-    
+    fontStyle: "italic",
+    textAlign: "center"
 
 
-  } 
+
+  }
 
 
 });
 function mapDispatchToProps(dispatch) {
   return {
     onEmailAuth: (user) => dispatch(emailAuth(user))
-   
+
 
     // onResetPassw: (requiredMail, authMode) => dispatch(resetPassw(requiredMail, authMode))
   };
@@ -212,8 +213,8 @@ const mapStateToProps = state => {
     homeTown: state.profile.homeTown,
     education: state.profile.education,
     facebook: state.profile.facebook,
-    image:state.profile.image,
-    flogin:state.profile.flogin
+    image: state.profile.image,
+    flogin: state.profile.flogin
 
 
   };
