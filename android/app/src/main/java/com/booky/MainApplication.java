@@ -11,6 +11,8 @@ import com.facebook.soloader.SoLoader;
 import io.invertase.firebase.firestore.RNFirebaseFirestorePackage; // <-- Add this line
 import io.invertase.firebase.auth.RNFirebaseAuthPackage; // <-- Add this line
 import io.invertase.firebase.storage.RNFirebaseStoragePackage; // <-- Add this line
+import io.invertase.firebase.messaging.RNFirebaseMessagingPackage; 
+///import io.invertase.firebase.notifications.RNFirebaseNotificationsPackage;
 import java.util.Arrays;
 import java.util.List;
 import com.facebook.FacebookSdk;
@@ -18,6 +20,11 @@ import com.facebook.CallbackManager;
 import com.facebook.appevents.AppEventsLogger;
 import com.facebook.reactnative.androidsdk.FBSDKPackage;
 import com.imagepicker.ImagePickerPackage;
+import com.github.alinz.reactnativewebviewbridge.WebViewBridgePackage;
+import com.filepicker.FilePickerPackage;
+import com.RNFetchBlob.RNFetchBlobPackage; 
+import com.vinzscam.reactnativefileviewer.RNFileViewerPackage;
+import com.brentvatne.react.ReactVideoPackage;
 //import android.support.multidex.MultiDexApplication;
 
 
@@ -41,12 +48,19 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+          new FilePickerPackage(),
+          new WebViewBridgePackage(),
           new VectorIconsPackage(),
+          new RNFetchBlobPackage() ,
+          new ReactVideoPackage(),
           new ImagePickerPackage(),
             new RNFirebasePackage(),
             new RNFirebaseStoragePackage(),
             new RNFirebaseFirestorePackage(),
             new RNFirebaseAuthPackage()  ,
+            new RNFirebaseMessagingPackage(),
+           /// new RNFirebaseNotificationsPackage(),
+            new RNFileViewerPackage(),
             new FBSDKPackage(mCallbackManager)
 /// the last line have been added for fb configuration
 

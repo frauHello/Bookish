@@ -1,14 +1,18 @@
-import{ createStore, combineReducers,compose,applyMiddleware} from'redux';
+import { createStore, combineReducers, compose, applyMiddleware } from 'redux';
 import thunk from "redux-thunk";
-import uiReducer from "./reducers/ui"; 
+import uiReducer from "./reducers/ui";
 import profileReducer from "./reducers/profile";
-//import promise from 'redux-promise-middleware'
+import bookReducer from "./reducers/book";
+import  bookmarkReducer from "./reducers/delBookmark"
 
-const rootReducer=combineReducers({
 
- ui: uiReducer,
-profile:profileReducer
- });
+const rootReducer = combineReducers({
+
+  ui: uiReducer,
+  profile: profileReducer,
+  bookItem: bookReducer,
+  bookmark:bookmarkReducer
+});
 
 let composeEnhancers = compose;
 
@@ -17,7 +21,7 @@ if (__DEV__) {
 }
 
 const configureStore = () => {
-return createStore(rootReducer, composeEnhancers(applyMiddleware(thunk)));
+  return createStore(rootReducer, composeEnhancers(applyMiddleware(thunk)));
 
 };
 

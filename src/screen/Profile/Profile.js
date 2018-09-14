@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { StyleSheet, Text, View, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import firebase from 'react-native-firebase';
 import CustomButton from '../../components/UI/CustomButton/CustomButton';
 import ConfirmSignOut from '../../utility/ConfirmSignOut';
@@ -12,11 +12,9 @@ import { Icon, Header, Avatar } from "react-native-elements";
 
 class Profile extends Component {
 
-
   componentDidMount() {
     const { currentUser } = firebase.auth();
     this.props.onEmailAuth({ currentUser });
-
 
   };
 
@@ -31,7 +29,22 @@ class Profile extends Component {
 
 
     };
+    const admin = "yamama@hotmail.com";
+    let Reports = null;
+    let isAdmin = (this.props.email === admin)
+    if (isAdmin) {
 
+      Reports = (
+        <CustomButton color="#bb5538" textcolor="#e7e7d6" onPress={()=>this.props.navigation.navigate('Reports')}>
+          View Reports
+</CustomButton>
+
+
+      );
+
+
+
+    }
 
     return (
 
@@ -56,6 +69,7 @@ class Profile extends Component {
               source={require('../../assets/images/cover.png')} />
           }
 
+
         />
         <View style={styles.container}>
 
@@ -67,7 +81,7 @@ class Profile extends Component {
               activeOpacity={0.7}
             />
             <Text style={styles.name}>{this.props.name}</Text>
-            <Text style={styles.bio}>{this.props.bio}</Text>
+           
           </View>
 
           <View style={styles.infoSet}>
@@ -79,9 +93,12 @@ class Profile extends Component {
               <Icon name='phone' color="#bb5538" />
               <Text style={styles.info}>{this.props.phoneNumber}</Text>
             </View >
+
           </View >
+       
         </View >
         <View style={styles.button}>
+          {Reports}
           <CustomButton color="#bb5538"
             textcolor="#e7e7d6"
             onPress={() => ConfirmSignOut()}>Sign Out</CustomButton>

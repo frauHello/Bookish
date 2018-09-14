@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
         
      alignItems:"center",
        flexDirection:"row",
-        marginTop:10,
+       
         padding:20,
         height:20,
         justifyContent: "center",

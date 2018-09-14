@@ -49,10 +49,10 @@ async function facebookLogin(saveInRedux) {
       firebase.auth().signInWithCredential(credential);
       const responseInfoCallback = (error, res) => {
         if (error) {
-          console.warn(error)
+         // console.warn(error)
           alert('Error fetching data: ' + error.toString());
         } else {
-          console.warn(res)
+        //  console.warn(res)
           alert('Success fetching data: ' + res.toString());
           user.email = res.email;
           user.picture = res.picture.data.url;

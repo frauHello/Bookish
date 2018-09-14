@@ -7,9 +7,9 @@ const initialState = {
 
     email: "",
     name: "",
-    image:require('../../assets/images/user_profile.png'),
-
-    phoneNumber: "76/142900",
+   // image:require('../../assets/images/user_profile.png'),
+image:null,
+    phoneNumber: "",
     bio: "",
     gender: "",
     homeTown: "",
@@ -46,7 +46,7 @@ const profileReducer = (state = initialState, action) => {
 
 
         case SAVE_IN_REDUX:
-        console.warn("inside the reducer profile");
+       // console.warn("inside the reducer profile");
    
             return {
                 ...state,

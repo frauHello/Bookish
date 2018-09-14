@@ -14,9 +14,9 @@ class ProfileImage extends Component {
   editImageHandler = () => {
     ImagePicker.showImagePicker({ title: "Pick an Image" }, res => {
       if (res.didCancel) {
-        console.warn("User cancelled!");
+       // console.warn("User cancelled!");
       } else if (res.error) {
-        console.warn("Error", res.error);
+      //  console.warn("Error", res.error);
       } else {
         this.setState({
           pickedImaged: { uri: res.uri }
@@ -29,14 +29,15 @@ class ProfileImage extends Component {
   render() {
     return (
       <View style={styles.container}>
-
+<TouchableOpacity onPress={this.editImageHandler}>
         <Avatar
           xlarge
           source={this.props.setImage}
           activeOpacity={0.7}
+          icon ={{name:'user-circle-o' ,size:100 , color:"#357180",type:'font-awesome' }}
         />
-        <TouchableOpacity onPress={this.editImageHandler}>
-        <Text style={styles.name}>Edit profile picture</Text>
+        
+        <Text style={styles.name}> Edit profile picture</Text>
         </TouchableOpacity>
       </View>
     );
@@ -67,6 +68,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 16,
     color: "#27636d",
+    paddingLeft:7
     
   }
 

@@ -10,21 +10,29 @@ import facebookLogin from "../../utility/facebook/facebookLogin";
 import FacebookButton from "../../components/UI/CustomButton/FacebookButton";
 import configureStore from '../../store/ConfigureStore';
 import {saveInRedux} from "../../store/actions/index";
+import firebase from 'react-native-firebase';
+
 
 const store = configureStore();
 
 export let navigatorRef = null;
 
-
 class AuthScreen extends Component {
 
-    
+    constructor(props) {
+        super(props);
+         this.authMode=this.props.navigation.state.params.authMode;
+        this.state.controls.email.value=this.props.navigation.state.params.email;
+     
+     }
+ 
 
 state = {
-authMode: "login",
+//authMode: "",
+token:'',
 controls: {
     email: {
-    value: "",
+    value:this.email ,
     valid: false,
     validationRules: { isEmail: true},
     touched: false
@@ -43,9 +51,16 @@ controls: {
 
                     }  
         } };
- 
+
     componentDidMount() {
         navigatorRef = this.props.navigation;
+        firebase.messaging().getToken()
+        .then((token) => {
+          //  console.warn('Device FCM Token: ', token);
+            this.setState({
+                token:token,
+            });
+      });
        
     }
     ForgotPasswordHandler = () => {
@@ -61,9 +76,11 @@ controls: {
         const authData = {
 
             email: this.state.controls.email.value,
-            password: this.state.controls.password.value
+            password: this.state.controls.password.value,
+            token:this.state.token,
         };
-        this.props.onTryAuth(authData, this.state.authMode);
+       // console.warn("authdata.token",authData.token);
+        this.props.onTryAuth(authData, this.authMode);
         
     }
 
@@ -73,15 +90,17 @@ controls: {
 
     }
     
-
+ 
 
 
     switchAuthModeHandler = () => {
-        this.setState(prevState => {
-            return {
-                authMode: prevState.authMode === 'login' ? 'signup' : 'login'
-            };
-        });
+
+
+    this.authMode= this.authMode === 'login' ? 'signup' : 'login';
+    this.forceUpdate();
+
+        
+      
     };
 
 
@@ -142,10 +161,10 @@ controls: {
         let submitButton = (<CustomButton onPress={this.AuthHandler.bind(this)}
         color="#bb5538"
        textcolor="#e7e7d6"
-       disabled={!this.state.controls.confirmPassword.valid && this.state.authMode === 'signup' || !this.state.controls.email.valid || !this.state.controls.password.valid}
-        >{this.state.authMode === 'login' ? "Log In" : "Sign Up"}
+       disabled={!this.state.controls.confirmPassword.valid && this.authMode === 'signup' || !this.state.controls.email.valid || !this.state.controls.password.valid}
+        >{this.authMode === 'login' ? "Log In" : "Sign Up"}
         </CustomButton>);
-        if (this.state.authMode === 'signup') {
+        if (this.authMode === 'signup') {
            
             confirmPasswordControl = (
                 <View>
@@ -159,13 +178,14 @@ controls: {
                 </View>
             );
         };
-        if (this.state.authMode === 'login') {
+        if (this.authMode === 'login'||this.authMode === 'signup') {
             SignUpControl=(<CustomButton 
                 textcolor="#27636d"
-                onPress={this.switchAuthModeHandler}>
-                CREATE NEW BOOKISH ACCOUNT 
+               onPress={this.switchAuthModeHandler}>
+             SWITCH TO {this.authMode === 'login' ? "SIGN UP":"LOG IN"}
             </CustomButton>);
-
+            }
+if (this.authMode === 'login'){
             forgotPasswordControl = (
                 <View>
                     <CustomButton 
@@ -180,7 +200,7 @@ controls: {
                 
             );
         };
-        if (this.state.authMode === 'login') {
+        if (this.authMode === 'login'||this.authMode === 'signup') {
 
              facebookControl = (  
               <View>

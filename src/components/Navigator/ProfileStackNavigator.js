@@ -3,6 +3,8 @@
  import { createStackNavigator } from 'react-navigation';
  import Profile from "../../screen/Profile/Profile";
  import EditProfile from "../../screen/Profile/EditProfile";
+ import Reports from "../../screen/Profile/Reports";
+
 
  
  
@@ -46,7 +48,14 @@
   
               
   
-            }
+            },
+            Reports: {
+  
+                screen:Reports,
+  
+              
+  
+            },
   
   
         },

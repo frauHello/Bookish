@@ -2,7 +2,10 @@
 import facebookLogout from './facebook/facebookLogout';
 import { Alert } from 'react-native';
 import firebase from 'react-native-firebase';
+import { uiStopLoading } from '../store/actions/index';
 const ConfirmSignOut =()=> {
+ 
+   
     Alert.alert(
       'Sign Out',
       'Are you sure that you want to sign out',
@@ -14,7 +17,7 @@ const ConfirmSignOut =()=> {
         },
         {
           text: 'YES', onPress: () => {
-            //console.warn('YES Pressed'),
+           // dispatch(uiStopLoading()); 
             firebase.auth().signOut();
             facebookLogout();
 
@@ -22,5 +25,8 @@ const ConfirmSignOut =()=> {
         }
       ]
     );
+
+
+  
   }
   export default ConfirmSignOut;

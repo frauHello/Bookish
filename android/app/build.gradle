@@ -119,8 +119,22 @@ dexOptions {
             include "armeabi-v7a", "x86"
         }
     }
+
+ signingConfigs {
+        release {
+            if (project.hasProperty('MYAPP_RELEASE_STORE_FILE')) {
+                storeFile file(MYAPP_RELEASE_STORE_FILE)
+                storePassword MYAPP_RELEASE_STORE_PASSWORD
+                keyAlias MYAPP_RELEASE_KEY_ALIAS
+                keyPassword MYAPP_RELEASE_KEY_PASSWORD
+            }
+        }
+    }
+
+
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
@@ -152,13 +166,16 @@ dependencies {
     compile "com.facebook.react:react-native:+"  // From node_modules
     compile project(':react-native-vector-icons')
      compile project(':react-native-image-picker')
+    compile project(':rn-fetch-blob')   
+     compile project(':react-native-file-picker')
+      compile project(':react-native-file-viewer')
+       compile project(':react-native-video')
+     compile project(':react-native-webview-bridge')
     compile "com.google.firebase:firebase-core:${googlePlayVer}"
     compile "com.google.firebase:firebase-auth:${googlePlayVer}"
-  //compile "com.google.firebase:firebase-analytics:${googlePlayVer}"
-  //compile "com.google.firebase:firebase-crash:${googlePlayVer}"
-    compile "com.google.firebase:firebase-storage:${googlePlayVer}"
+    compile "com.google.firebase:firebase-messaging:${googlePlayVer}"
+  compile "com.google.firebase:firebase-storage:${googlePlayVer}"
     compile "com.google.firebase:firebase-firestore:${googlePlayVer}"
-  //compile "com.google.firebase:firebase-perf:${googlePlayVer}"
   compile (project(':react-native-fbsdk')) {
         exclude group: 'com.google.android.gms'
 }
@@ -173,3 +190,7 @@ task copyDownloadableDepsToLibs(type: Copy) {
 
 
 apply plugin: 'com.google.gms.google-services'
+project.afterEvaluate {
+    apply from: '../../node_modules/react-native-zss-rich-text-editor/htmlCopy.gradle';
+    copyEditorHtmlToAppAssets(file('../../node_modules/react-native-zss-rich-text-editor'))
+}

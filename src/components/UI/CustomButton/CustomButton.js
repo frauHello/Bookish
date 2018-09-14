@@ -4,7 +4,7 @@ import { Text, TouchableOpacity, View, StyleSheet } from "react-native";
 
 const CustomButton= props => {
     const content = (
-        <View style={[styles.button, { backgroundColor: props.color,width:props.width }, props.disabled ? styles.disabled : null]}>
+        <View style={[styles.button, { backgroundColor: props.color,width:props.width,elevation:props.elevation,marginTop:props.marginTop}, props.disabled ? styles.disabled : null]}>
             <Text style= {[styles.buttonText, { color: props.textcolor },props.disabled ? styles.disabledText:null]}>{props.children}  </Text>
         </View>
     );
@@ -13,10 +13,12 @@ const CustomButton= props => {
         return content;
       }
 
-      return <TouchableOpacity onPress={props.onPress}>{content}</TouchableOpacity>;
+      return( 
+     
+      <TouchableOpacity onPress={props.onPress}>{content}</TouchableOpacity>
   
-
-
+  
+      )
 
 
 }
@@ -46,6 +48,7 @@ const styles = StyleSheet.create({
  {
 color:"#27636d",
 fontWeight:"bold",
+
 
 
 
