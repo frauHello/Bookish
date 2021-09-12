@@ -128,7 +128,7 @@ export default class AddBookProfile extends Component {
 
     }
   addImageHandler = () => {
-        ImagePicker.showImagePicker({ title: "Pick a picture" }, res => {
+        ImagePicker.showImagePicker({ title: "Add a Cover" }, res => {
           if (res.didCancel) {
           //  console.warn("User cancelled!");
           } else if (res.error) {
@@ -213,6 +213,9 @@ onPress={()=>{  this.setState({isVisible: true });
             <TextInput
               onChangeText={this.titleChanged}
               style={styles.input}
+              returnKeyType = { "next" }
+              onSubmitEditing={() => { this.secondTextInput.focus(); }}
+              blurOnSubmit={false}
               placeholder='ex. Anna Karenina'
               value={this.state.title}
               underlineColorAndroid='transparent'
@@ -225,6 +228,10 @@ onPress={()=>{  this.setState({isVisible: true });
             <TextInput
               onChangeText={this.authorChanged}
               style={styles.input}
+              returnKeyType = { "next" }
+              onSubmitEditing={() => { this.thirdTextInput.focus(); }}
+              ref={(input) => { this.secondTextInput = input; }}
+              blurOnSubmit={false}
               placeholder='ex. Leo TOLSTOY'
               value={this.state.author}
               underlineColorAndroid='transparent'
@@ -242,6 +249,7 @@ onPress={()=>{  this.setState({isVisible: true });
                         minHeight={45}
                         enableScrollToCaret
                         value={this.state.description}
+                        ref={(input) => { this.thirdTextInput = input; }}
 
 
                     />

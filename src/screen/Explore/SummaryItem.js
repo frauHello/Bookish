@@ -5,9 +5,6 @@ import { Icon, Card ,Avatar} from 'react-native-elements';
 import CustomButton from '../../components/UI/CustomButton/CustomButton';
 import FileViewer from 'react-native-file-viewer';
 
-
-
-
 export default class SummaryItem extends Component {
   constructor(props) {
     super(props);
@@ -43,6 +40,7 @@ export default class SummaryItem extends Component {
     let { item, navigation } = this.props
     let { sumid,
       title,
+      date,
       text,
       picture,
       username,
@@ -55,50 +53,20 @@ export default class SummaryItem extends Component {
 
     return (
 
-      //         <View style={styles.container}>
-      // <TouchableOpacity onPress={()=>this.downloadFromFirestore(file,fileName)}>
-      //           <Avatar
-      //             xlarge
-      //             source={{ uri:picture }}
-      //             activeOpacity={0.7}
-      //           />
-
-      //    </TouchableOpacity>
-
-      //           <Text style={styles.Text}>Title: {title}</Text>
-
-      //           <Text style={styles.Text}>text: {text}</Text>
-      // <CustomButton color="#bb5538" onPress={()=>{
-      //   console.warn("VideoUrl",videoUrl)
-      //  this.props.navigation.navigate('Preview', {
-      //                                 videoSource: videoUrl
-      //                             })
-      //                         }}>video    </CustomButton>
-
-      //   
-      //      </View>
-
    
-<Card
+ <Card
 
 wrapperStyle={styles.container}
 containerStyle={styles.card}
 >
-{/* <View style={styles.data}>
 
-<Image   source={{uri:picture}} style={styles.cover}     />
-
- </View> */}
  <View style={styles.data}>      
  <Text style={styles.title}>{title}</Text> 
    
 <Text style={styles.author}>by.{username}</Text>
 
  <View style={styles.Button}>
- {/* <TouchableOpacity onPress={() => { {this.props.navigation.navigate('description', {
-                                      picture: picture,text:text,title:title }) }}}>
-   <Icon reverse name='description' color='#357180' />
-     </TouchableOpacity> */}
+ 
   <TouchableOpacity onPress={() => {this.props.navigation.navigate('Preview', {
                                       videoSource: videoUrl }) }}>
    <Icon reverse name='video' color='#357180' type='entypo' />
@@ -110,7 +78,9 @@ containerStyle={styles.card}
 
    </View>
   </View>
-</Card>
+</Card> 
+//{/* <View style={styles.container}>
+
 
     );
 
@@ -121,8 +91,7 @@ const styles = StyleSheet.create({
   container:{
     flex: 1,
     backgroundColor: "#e7e7d6",
-   // flexDirection:"row",
-   
+   flexDirection:"row",
     borderColor:"#357180",
     borderWidth:1,
    
@@ -172,7 +141,11 @@ fontSize:12
    height:200
 
 
-   }
+   },
+   username:
+     {flexDirection:'row', 
+     width:'60%'}
+   
 });
 
 

@@ -107,9 +107,12 @@ dexOptions {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
+     vectorDrawables.useSupportLibrary = true
+
     }
     splits {
         abi {
@@ -139,6 +142,7 @@ dexOptions {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
+    
     // applicationVariants are e.g. debug, release
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
@@ -167,6 +171,7 @@ dependencies {
     compile project(':react-native-vector-icons')
      compile project(':react-native-image-picker')
     compile project(':rn-fetch-blob')   
+    compile project(':react-native-image-crop-picker')
      compile project(':react-native-file-picker')
       compile project(':react-native-file-viewer')
        compile project(':react-native-video')

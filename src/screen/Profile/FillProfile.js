@@ -10,7 +10,7 @@ import CustomButton from '../../components/UI/CustomButton/CustomButton';
 import firebase from 'react-native-firebase';
 import { Icon, Header } from "react-native-elements";
 
-class EditProfile extends Component {
+class FillProfile extends Component {
 
   state = {
     name: "",
@@ -49,17 +49,7 @@ class EditProfile extends Component {
 
     });
   }
-componentWillMount(){
-this.setState({
-  imagestat: {
-      image: this.props.navigation.state.params.profilePic,
-      valid: false
-    }
 
-
-})
-
-}
   editProfileHandler = () => {
     this.setState({visible:true})
     if (this.state.name.trim() !== "") {
@@ -83,9 +73,9 @@ this.setState({
       const imageRef = directoryRef.child('ProfileImages');
       const currentRef = imageRef.child(this.state.image);
       currentRef.putFile(this.state.imagestat.image).then(() => {
-        console.warn("profilepic in storage now", this.state.imagestat.image)
+      //  console.warn("profilepic in storage now", this.state.imagestat.image)
         currentRef.getDownloadURL().then((url) => {
-          console.warn("I ve got the url from storage", url);
+        //  console.warn("I ve got the url from storage", url);
           this.setState({
             profileUrl: url
           });
@@ -97,7 +87,7 @@ this.setState({
 
 
           })
-          this.props.navigation.navigate('Profile')
+          this.props.navigation.navigate('MainTabNavigator')
         })
       });
 
@@ -109,7 +99,7 @@ this.setState({
         name: this.state.name,
         phoneNumber: this.state.phoneNumber
       })
-      this.props.navigation.navigate('Profile')
+      this.props.navigation.navigate('MainTabNavigator')
 
     }
   }
@@ -159,7 +149,7 @@ this.setState({
         Submit  </CustomButton>
     </View>)
     
-    rightComponent=( <TouchableOpacity onPress={() => { this.props.navigation.navigate('Profile') }} >
+    rightComponent=( <TouchableOpacity onPress={() => { this.props.navigation.navigate('MainTabNavigator') }} >
     <View>
       < Icon
         type="entypo" size={35}
@@ -182,7 +172,7 @@ this.setState({
         <ScrollView style={{ backgroundColor: "#e7e7d6" }}>
           <View style={styles.modalContainer} >
             <ProfileImage
-            word="Edit"
+            word='Add'
               source={src}
               onImagePicked={this.imageEditedHandler} />
 
@@ -195,7 +185,7 @@ this.setState({
                 iconColor={'#357180'}
                 iconSize={30}
                 onChangeText={this.nameChanged}
-                defaultValue={this.props.name}
+               // defaultValue={this.props.name}
                 style={
                   {
                     backgroundColor: "#e7e7d6",
@@ -225,7 +215,7 @@ this.setState({
                 iconSize={30}
                 onChangeText={this.phoneChanged}
                 keyboardType="numeric"
-                defaultValue={this.props.phoneNumber}
+              //  defaultValue={this.props.phoneNumber}
                 style={
                   {
                     backgroundColor: "#e7e7d6",
@@ -407,5 +397,5 @@ const mapStateToProps = state => {
 
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditProfile);
+export default connect(mapStateToProps, mapDispatchToProps)(FillProfile);
 

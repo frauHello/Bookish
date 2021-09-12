@@ -6,29 +6,46 @@ import CustomButton from '../../components/UI/CustomButton/CustomButton';
 import ConfirmSignOut from '../../utility/ConfirmSignOut';
 import { emailAuth } from '../../store/actions/index';
 import { Icon, Header, Avatar } from "react-native-elements";
-
-
-
+import { addfield } from '../../store/actions/index';
+import { imageEdited } from '../../store/actions/index';
 
 class Profile extends Component {
 
+ 
   componentDidMount() {
-    const { currentUser } = firebase.auth();
-    this.props.onEmailAuth({ currentUser });
+  const { currentUser } = firebase.auth();
+  this.props.onEmailAuth({ currentUser });
+  }
+componentWillMount(){
+const { currentUser } = firebase.auth();
+ const userRef = firebase.firestore().collection('users').doc(currentUser.uid);
+ userRef.get().then((doc)=> {
+    if (doc.exists) {
+     const{name,phoneNumber,profilePic}=doc.data();
+    //  console.warn(name, profilePic,phoneNumber)
+     this.props.onEditfield(name,"name")
+     this.props.onEditfield(phoneNumber,"phoneNumber")
+     this.props.onImageEdited(profilePic)
+   
+      
+    } else {
+         // doc.data() will be undefined in this case
+         //console.warn("No such document!");
+    }
+ }).catch(function(error) {
+     console.warn("Error getting document:", error);
+ });
+}
 
-  };
 
   render() {
-    let src = null;
-    if (this.props.flogin) {
+    let src =null;
+    if (this.props.image.trim() !== "") {
 
-      src = { uri: this.props.image };
+      src ={uri:this.props.image};
     }
-    else {
-      src = this.props.image
-
-
-    };
+    else 
+     {src =require('../../assets/images/user_profile.png')};
     const admin = "yamama@hotmail.com";
     let Reports = null;
     let isAdmin = (this.props.email === admin)
@@ -54,7 +71,9 @@ class Profile extends Component {
           backgroundColor="#bb5538"
 
           rightComponent={(
-            <TouchableOpacity onPress={() => { this.props.navigation.navigate('EditProfile') }} >
+            <TouchableOpacity onPress={() => { this.props.navigation.navigate('EditProfile',{
+              profilePic: this.props.image
+          }) }} >
               <View>
                 < Icon
                   type="foundation" size={35}
@@ -71,7 +90,7 @@ class Profile extends Component {
 
 
         />
-        <View style={styles.container}>
+        
 
 
           <View style={styles.ProfileImage}>
@@ -79,12 +98,16 @@ class Profile extends Component {
               xlarge
               source={src}
               activeOpacity={0.7}
+              imageProps={{resizeMode:"stretch"}}
             />
             <Text style={styles.name}>{this.props.name}</Text>
-           
+            </View>
+            <View style={{marginTop:30 ,flexDirection:"row",justifyContent:"space-between" ,marginLeft:"5%",marginRight:"5%"}}>
+         <Icon name='book-open-page-variant' color="#bb5538"size={35}  containerStyle={{justifyContent:"flex-start"}} type='material-community'/>
+         <Icon name='book-open-page-variant' color="#bb5538"size={35}  containerStyle={{justifyContent:"flex-end"}} type='material-community'/>
           </View>
-
-          <View style={styles.infoSet}>
+            
+          <View style={{borderColor:"#bb5538",borderWidth:3,alignSelf:"center",width:"80%",alignItems:"center",justifyContent:"center"}}>
             <View style={styles.horizontal}>
               <Icon name='email' color="#bb5538" />
               <Text style={styles.info}>{this.props.email}</Text>
@@ -93,16 +116,21 @@ class Profile extends Component {
               <Icon name='phone' color="#bb5538" />
               <Text style={styles.info}>{this.props.phoneNumber}</Text>
             </View >
-
+            
           </View >
-       
-        </View >
-        <View style={styles.button}>
+          <View style={{flexDirection:"row",justifyContent:"space-between" ,marginLeft:"5%",marginRight:"5%"}}>
+         <Icon name='book-open-page-variant' color="#bb5538"size={35}  containerStyle={{justifyContent:"flex-start"}} type='material-community'/>
+         <Icon name='book-open-page-variant' color="#bb5538"size={35}  containerStyle={{justifyContent:"flex-end"}} type='material-community'/>
+          </View>
+        <View style={{alignSelf:"center",width:"82.5%" ,position: 'absolute',
+    bottom:5}}>
+     
           {Reports}
           <CustomButton color="#bb5538"
             textcolor="#e7e7d6"
+            
             onPress={() => ConfirmSignOut()}>Sign Out</CustomButton>
-        </View>
+      </View >
       </View>
 
 
@@ -124,7 +152,8 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-
+   // alignItems:"center",
+   // justifyContent:"center",
     backgroundColor: "#e7e7d6",
 
 
@@ -133,11 +162,13 @@ const styles = StyleSheet.create({
   },
 
   horizontal: {
-    width: "100%",
+   // width: "100%",
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
     alignItems: "center",
-    marginTop: 5
+    marginTop: 5,
+   
+    marginBottom:5
 
 
 
@@ -161,16 +192,11 @@ const styles = StyleSheet.create({
     height: 40
 
   },
-  infoSet: {
-    marginTop: 15
-
-
-  },
 
   info: {
 
 
-    width: "90%",
+   // width: "90%",
     fontSize: 15,
 
     color: "#27636d",
@@ -198,26 +224,16 @@ const styles = StyleSheet.create({
 
 
 
-  },
-  bio: {
-
-    fontSize: 14,
-    color: "#27636d",
-    fontStyle: "italic",
-    textAlign: "center"
-
-
-
   }
 
 
 });
 function mapDispatchToProps(dispatch) {
   return {
-    onEmailAuth: (user) => dispatch(emailAuth(user))
-
-
-    // onResetPassw: (requiredMail, authMode) => dispatch(resetPassw(requiredMail, authMode))
+    onEmailAuth: (user) => dispatch(emailAuth(user)),
+    onEditfield: (value, field) => dispatch(addfield(value, field)),
+    onImageEdited: (image) => dispatch(imageEdited(image)),
+   
   };
 };
 const mapStateToProps = state => {

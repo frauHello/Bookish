@@ -3,14 +3,16 @@ import { View, Text, StyleSheet, Dimensions,TouchableOpacity } from "react-nativ
 import ImagePicker from "react-native-image-picker";
 import { Avatar } from "react-native-elements"
 
-
 var { height } = Dimensions.get('window');
 var image_height = height / 4;
 
 
 class ProfileImage extends Component {
  
+state={
 
+  pickedImaged:null
+}
   editImageHandler = () => {
     ImagePicker.showImagePicker({ title: "Pick an Image" }, res => {
       if (res.didCancel) {
@@ -21,23 +23,26 @@ class ProfileImage extends Component {
         this.setState({
           pickedImaged: { uri: res.uri }
         });
-        this.props.onImagePicked({ uri: res.uri, base64: res.data });
+   
+        this.props.onImagePicked( res.uri );
       }
     });
   }
 
   render() {
+   
     return (
       <View style={styles.container}>
 <TouchableOpacity onPress={this.editImageHandler}>
         <Avatar
           xlarge
-          source={this.props.setImage}
+          imageProps={{resizeMode:"stretch"}}
+          source={this.props.source}
           activeOpacity={0.7}
           icon ={{name:'user-circle-o' ,size:100 , color:"#357180",type:'font-awesome' }}
         />
         
-        <Text style={styles.name}> Edit profile picture</Text>
+        <Text style={styles.name}> {this.props.word} profile picture</Text>
         </TouchableOpacity>
       </View>
     );
@@ -75,3 +80,8 @@ const styles = StyleSheet.create({
 });
 
 export default ProfileImage;
+
+
+
+
+

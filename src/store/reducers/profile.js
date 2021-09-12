@@ -1,5 +1,5 @@
 import { EMAIL_AUTH } from "../actions/actionTypes";
-
+import {AsyncStorage} from 'react-native';
 import { PROFILE_IMAGE_EDIT } from "../actions/actionTypes";
 import { SAVE_IN_REDUX } from "../actions/actionTypes";
 import { ADD_FIELD } from "../actions/actionTypes";
@@ -7,16 +7,16 @@ const initialState = {
 
     email: "",
     name: "",
-   // image:require('../../assets/images/user_profile.png'),
-image:null,
+    // image:require('../../assets/images/user_profile.png'),
+    image:'',
     phoneNumber: "",
     bio: "",
     gender: "",
     homeTown: "",
     education: "",
     facebook: "",
-    email2:"",
-    flogin:false
+    email2: "",
+    flogin: false
 
 };
 const profileReducer = (state = initialState, action) => {
@@ -33,10 +33,12 @@ const profileReducer = (state = initialState, action) => {
             };
         case PROFILE_IMAGE_EDIT:
 
-
+        if (action.image) {
+            AsyncStorage.setItem('profileImage',action.image);
+          }
             return {
                 ...state,
-                flogin:false,
+                flogin: false,
                 image: action.image
 
 
@@ -46,70 +48,41 @@ const profileReducer = (state = initialState, action) => {
 
 
         case SAVE_IN_REDUX:
-       // console.warn("inside the reducer profile");
-   
+        if (action.name) {
+            AsyncStorage.setItem('username',action.name);
+          } 
+          if (action.image) {
+            AsyncStorage.setItem('profileImage',action.image);
+          }
             return {
                 ...state,
-               
+
                 name: action.name,
                 image: action.image,
-                flogin:true
+                flogin: true
 
 
             };
         case ADD_FIELD:
-            //console.warn("inside the reducer profile");
+            
             switch (action.field) {
                 case "name":
-
+                if (action.value) {
+                    AsyncStorage.setItem('username',action.value);
+                  }
                     return {
                         ...state,
-                        name:action.value
-                    };
-
-                case "facebook":
-
-                    return {
-                        ...state,
-                        facebook:action.value
-                    };
-
-                case "education":
-
-                    return {
-                        ...state,
-                        education:action.value
-                    };
-                case "homeTown":
-
-                    return {
-                        ...state,
-                        homeTown:action.value
-                    };
-                case "gender":
-
-                    return {
-                        ...state,
-                        gender:action.value
-                    };
-                case "bio":
-
-                    return {
-                        ...state,
-                        bio:action.value
+                        name: action.value
                     };
                 case "phoneNumber":
-
+                if (action.value) {
+                    AsyncStorage.setItem('phoneNumber',action.value);
+                  }
                     return {
                         ...state,
-                        phoneNumber:action.value
+                        phoneNumber: action.value
                     };
-                    case "email2":
 
-                    return {
-                        ...state,
-                        email2:action.value
-                    };
 
 
             }

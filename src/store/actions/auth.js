@@ -28,7 +28,7 @@ const userRef=firebase.firestore().collection('users').doc(user.uid);
   })
 
 }).then(() => {
-  navigatorRef.navigate('EditProfile');
+  navigatorRef.navigate('FillProfile');
  
 })  
   .catch(err => {

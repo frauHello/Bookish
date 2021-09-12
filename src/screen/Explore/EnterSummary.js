@@ -1,28 +1,22 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView } from 'react-native';
-import { Avatar, Header, Icon } from "react-native-elements";
+import { StyleSheet, Image,Text, View, TouchableOpacity, KeyboardAvoidingView,TextInput, ScrollView } from 'react-native';
+import { Icon, Header } from "react-native-elements";
 import FilePickerManager from 'react-native-file-picker';
 import firebase from 'react-native-firebase';
 import ImagePicker from "react-native-image-picker";
+import ImageCropPicker from 'react-native-image-crop-picker';
 import { connect } from 'react-redux';
 import { AutoGrowingTextInput } from 'react-native-autogrow-textinput';
 import Uploader from "../../components/UI/Activity/Uploader";
 import AnimatedHeader from 'react-native-animated-header';
 
-
+var async = require("async");
 //var { height, width } = Dimensions.get('window');
 
+ var today = new Date();
+
 class EnterSummary extends Component {
-    // componentDidMount() {
-    //     InteractionManager.runAfterInteractions(() => {
-    //         this.setState({
-
-    //             isReady: true,
-    //         });
-    //         console.warn("hello I'm ready")
-    //     });
-
-    // }
+  
     selectVideoTapped() {
 
         const options = {
@@ -54,22 +48,28 @@ class EnterSummary extends Component {
                     videoSource: response.uri
 
                 });
-                
-                    this.props.navigation.navigate('Preview', {
-                        videoSource: this.state.videoSource
-                    })
+
+                this.props.navigation.navigate('Preview', {
+                    videoSource: this.state.videoSource
+                })
 
             }
 
         });
 
     }
-
-
+    // selectVideoTapped(){
+    // ImagePicker.openPicker({
+    //     mediaType: "video",
+    //   }).then((video) => {
+    //     console.log(video);
+    //   });
+    // }
 
     constructor(props) {
         super(props);
         this.selectFileTapped = this.selectFileTapped.bind(this);
+        this.UploadMultipe = this.UploadMultipe.bind(this);
         this.summaryRef = firebase.firestore().collection('summaries');
         this.bookRef = firebase.firestore().collection('books').doc(this.props.bookId);
         this.storage = firebase.storage();
@@ -77,12 +77,15 @@ class EnterSummary extends Component {
         this.sumRef = this.directoryRef.child('files');
         this.imageRef = this.directoryRef.child('SummaryImages');
         this.videoRef = this.directoryRef.child("SummaryVideo");
+     this.date=today.getDate() + "/"+ parseInt(today.getMonth()+1) +"/"+ today.getFullYear();
+
 
     }
     state = {
         fileuri: undefined,
         //url: "",
         fileName: "",
+        
         title: "",////should be written in firestore
         image: null,
         imageurl: '',
@@ -92,12 +95,14 @@ class EnterSummary extends Component {
         userId: firebase.auth().currentUser.uid,///should be written in firestore
         textArea: "",///should be written in firestore
         createdAt: new Date().getTime(),
-        videoSource:'',
+        videoSource: '',
         videoUrl: '',
         isVisible: false,
-        progress:"Uploading...",
+        progress: "Uploading...",
+        toUploadIm: [],
+        uploadedIm: []
 
- }
+    }
 
 
     titleChanged = val => {
@@ -113,37 +118,37 @@ class EnterSummary extends Component {
         this.setState({ textArea: event.nativeEvent.text || '' });
 
     }
-    addImageHandler = () => {
-        ImagePicker.showImagePicker({ title: "Pick an Image" }, res => {
-            if (res.didCancel) {
-              //  console.warn("User cancelled!");
-            } else if (res.error) {
-              //  console.warn("Error", res.error);
-            } else {
-                this.setState({
-                    image: { uri: res.uri, base64: res.data },
-                    imageuri: res.uri
-                });
-             //   console.warn("Image picked uri", this.state.imageuri)
+    // addImageHandler = () => {
+    //     ImagePicker.showImagePicker({ title: "Pick an Image" }, res => {
+    //         if (res.didCancel) {
+    //           //  console.warn("User cancelled!");
+    //         } else if (res.error) {
+    //           //  console.warn("Error", res.error);
+    //         } else {
+    //             this.setState({
+    //                 image: { uri: res.uri, base64: res.data },
+    //                 imageuri: res.uri
+    //             });
+    //          //  console.warn("Image picked uri", this.state.imageuri)
 
-            }
-        });
-    }
+    //         }
+    //     });
+    // }
     selectFileTapped() {
         const options = {
             title: 'File Picker',
             chooseFileButtonTitle: 'Choose File...'
         };
         FilePickerManager.showFilePicker(options, (response) => {
-           // console.warn('Response = ', response);
+            // console.warn('Response = ', response);
             if (response.didCancel) {
-             //   console.warn('User cancelled photo picker');
+                //   console.warn('User cancelled photo picker');
             }
             else if (response.error) {
-              //  console.warn('ImagePickerManager Error: ', response.error);
+                //  console.warn('ImagePickerManager Error: ', response.error);
             }
             else if (response.customButton) {
-             //   console.warn('User tapped custom button: ', response.customButton);
+                //   console.warn('User tapped custom button: ', response.customButton);
             }
             else {
                 this.setState({
@@ -155,8 +160,63 @@ class EnterSummary extends Component {
             }
         });
     }
+    addMultipleImageHandler = () => {
+        ImageCropPicker.openPicker({
+            mediaType: 'photo',
+            multiple: true
+        }).then(images => {
+            // console.warn(images.path);
+            this.setState({
+                toUploadIm: images
+            });
+
+        });
 
 
+
+    }
+    UploadMultipe = (toUploadIm, uploadedIm) => {
+        console.warn("Inside upload multiple")
+        async.map(toUploadIm, async function (image) {
+            // console.warn(toUploadIm)
+            //let uploadedIm = []
+            let uri = image.path
+            // console.warn(uri)
+            const directoryRef = firebase.storage().ref('Summaries');
+            const imageRef = directoryRef.child('SummaryImages');
+            const currentRef = imageRef.child(uri);
+            return currentRef.putFile(uri).then(() => {
+                // console.warn("hii after then putimage in storage")
+                //  console.warn(uri)
+                return currentRef.getDownloadURL().then((imageurl) => {
+                    //   console.warn("hi after then the get image dw url", imageurl);
+                    uploadedIm.push(imageurl)
+                    console.warn(uploadedIm)
+                })
+
+            })
+        }, function (err, results) {
+
+        });
+
+
+    }
+
+    // uploadIm = (image) => {
+    //     let uploadedIm = []
+    //     let uri = image.path
+    //     const imageRef = this.imageRef.child(uri);
+    //     return imageRef.putFile(uri).then(() => {
+    //         console.warn("hii after then putimage in storage")
+    //         console.warn(uri)
+    //         return imageRef.getDownloadURL().then((imageurl) => {
+    //             console.warn("hi after then the get image dw url", imageurl);
+    //             return uploadedIm.push(imageurl)
+
+    //         })
+
+    //     })
+    // }
 
     // uploadSummary = () => {
     //     console.warn("here inside upload summary")
@@ -218,24 +278,24 @@ class EnterSummary extends Component {
 
     //  }
     uploadSummaryPickedFile = (fileuri, imageuri, videoSource) => {
-      //  console.warn("I entered uploadSummaryPickedFile")
+        //  console.warn("I entered uploadSummaryPickedFile")
         const sumRef = this.sumRef.child(fileuri);
         return sumRef.putFile(fileuri).then((response) => {
-          //  console.warn("hii after  putfile in storage trying to get w url", { response })
+            //  console.warn("hii after  putfile in storage trying to get w url", { response })
             return sumRef.getDownloadURL().then((fileurl) => {
-               // console.warn("hi after then the get file dw url", fileurl);
+                // console.warn("hi after then the get file dw url", fileurl);
                 return this.setState({ fileurl: fileurl });
 
             })
         }).then(() => {
             const imageRef = this.imageRef.child(imageuri);
             return imageRef.putFile(imageuri).then(() => {
-             //   console.warn("hii after then putimage in storage")
-             //   console.warn(imageuri)
+                console.warn("hii after then putimage in storage")
+                console.warn(imageuri)
                 return imageRef.getDownloadURL().then((imageurl) => {
-               //     console.warn("hi after then the get image dw url", imageurl);
+                    console.warn("hi after then the get image dw url", imageurl);
                     return this.setState({ imageurl: imageurl });
-                    // console.warn("this.state.imageurl", this.state.imageurl);
+                    console.warn("this.state.imageurl", this.state.imageurl);
                 })
 
 
@@ -243,30 +303,30 @@ class EnterSummary extends Component {
         }).then(() => {
 
             const videoRef = this.videoRef.child(videoSource);
-           // console.warn("inside the put video file")
+            // console.warn("inside the put video file")
             return videoRef.putFile(videoSource)
+                .then(() => {
+                    //   console.warn("hii after then putVideo in storage")
+                    //   console.warn(videoSource)
+                    return videoRef.getDownloadURL().then((videourl) => {
+                        //     console.warn("hi after then the get image dw url", videourl);
+                        return this.setState({
+                            videoUrl: videourl,
+
+                        });
+
+                    })
+
+
+                }).catch((error) => { console.warn("video error", error) })
+
+
+
+
+
+        })
             .then(() => {
-             //   console.warn("hii after then putVideo in storage")
-             //   console.warn(videoSource)
-                return videoRef.getDownloadURL().then((videourl) => {
-               //     console.warn("hi after then the get image dw url", videourl);
-                    return this.setState({
-                        videoUrl: videourl,
-                       
-                    });
-    
-                })
-    
-    
-            }).catch((error) => { console.warn("video error", error) })
-
-
-
-
-
-            })
-            .then(()=>{
-              //  console.warn("hi inside upload to firestore")
+                //  console.warn("hi inside upload to firestore")
                 return this.bookRef.collection('itsSummaries').add({
                     title: this.state.title,
                     text: this.state.textArea,
@@ -277,23 +337,23 @@ class EnterSummary extends Component {
                     fileuri: this.state.fileuri,
                     fileName: this.state.fileName,
                     videouri: this.state.videoSource,
-                   // video: video,
+                    // video: video,
                     videoUrl: this.state.videoUrl,
-        
+
                 })
 
 
 
 
             }).then(() => {
-               // console.warn("hi inside then in upload firestore cleaning state")
+                // console.warn("hi inside then in upload firestore cleaning state")
                 return this.setState({
-                    progress:"Done !",
+                    progress: "Done !",
                     title: '',
                     textArea: '',
                     imageurl: '',
-                    image:null,
-                    fileurl:'',
+                    image: null,
+                    fileurl: '',
                     time: '',
                     username: '',
                     userId: '',
@@ -303,153 +363,268 @@ class EnterSummary extends Component {
                     videoUrl: '',
                     videoSource: '',
                     isVisible: false,
-                   
-     })
 
-    })   
-    
-          
-     
+                })
+
+            })
+
+
+
     }
 
-//     uploadToFirestore(){
-//         //let video = this.props.navigation.state.params.video;
-//         console.warn("hi inside upload to firestore")
-//         return this.bookRef.collection('itsSummaries').add({
-//             title: this.state.title,
-//             text: this.state.textArea,
-//             picture: this.state.imageurl,
-//             username: this.props.username,
-//             time: this.state.createdAt,
-//             file: this.state.fileurl,
-//             fileuri: this.state.fileuri,
-//             fileName: this.state.fileName,
-//             videouri: this.state.videoSource,
-//            // video: video,
-//             videoUrl: this.state.videoUrl,
+    //     uploadToFirestore(){
+    //         //let video = this.props.navigation.state.params.video;
+    //         console.warn("hi inside upload to firestore")
+    //         return this.bookRef.collection('itsSummaries').add({
+    //             title: this.state.title,
+    //             text: this.state.textArea,
+    //             picture: this.state.imageurl,
+    //             username: this.props.username,
+    //             time: this.state.createdAt,
+    //             file: this.state.fileurl,
+    //             fileuri: this.state.fileuri,
+    //             fileName: this.state.fileName,
+    //             videouri: this.state.videoSource,
+    //            // video: video,
+    //             videoUrl: this.state.videoUrl,
 
-//         }).then(() => {
-//             console.warn("hi inside then in upload firestore cleaning state")
-//             return this.setState({
-//                 title: '',
-//                 textArea: '',
-               
-              
-//                 fileName: '',
-//                 fileuri: '',
-//                 imageuri: '',
-//                 videoUrl: '',
-//                 videoSource: '',
-//                 image:'',
-//                progress:"Done!",
-//                 imageurl: '',
-//                 fileurl: '',
-//                 isVisible: false,
-//                 time: '',
-//                 username: '',
-//                 userId: '',
-//  })
+    //         }).then(() => {
+    //             console.warn("hi inside then in upload firestore cleaning state")
+    //             return this.setState({
+    //                 title: '',
+    //                 textArea: '',
 
 
-//         })
+    //                 fileName: '',
+    //                 fileuri: '',
+    //                 imageuri: '',
+    //                 videoUrl: '',
+    //                 videoSource: '',
+    //                 image:'',
+    //                progress:"Done!",
+    //                 imageurl: '',
+    //                 fileurl: '',
+    //                 isVisible: false,
+    //                 time: '',
+    //                 username: '',
+    //                 userId: '',
+    //  })
+
+
+    //         })
 
 
 
-//     }
-    
-//     uploadVideo = (videoSource) => {
-//         const videoRef = this.videoRef.child(videoSource);
-//         console.warn("inside the put video file")
-//         const uploadTask = videoRef.putFile(videoSource)
-//         uploadTask.then(() => {
-//             console.warn("hii after then putVideo in storage")
-//             console.warn(videoSource)
-//             return videoRef.getDownloadURL().then((videourl) => {
-//                 console.warn("hi after then the get image dw url", videourl);
-//                 return this.setState({
-//                     videoUrl: videourl,
-//                     isVisible: false
-//                 });
+    //     }
 
-//             })
+    //     uploadVideo = (videoSource) => {
+    //         const videoRef = this.videoRef.child(videoSource);
+    //         console.warn("inside the put video file")
+    //         const uploadTask = videoRef.putFile(videoSource)
+    //         uploadTask.then(() => {
+    //             console.warn("hii after then putVideo in storage")
+    //             console.warn(videoSource)
+    //             return videoRef.getDownloadURL().then((videourl) => {
+    //                 console.warn("hi after then the get image dw url", videourl);
+    //                 return this.setState({
+    //                     videoUrl: videourl,
+    //                     isVisible: false
+    //                 });
+
+    //             })
 
 
-//         }).catch((error) => { console.warn("video error", error) })
+    //         }).catch((error) => { console.warn("video error", error) })
 
-//         uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED, (snapshot) => {
+    //         uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED, (snapshot) => {
 
-//             const prog = (snapshot.bytesTransferred / snapshot.totalBytes)
-//             this.setState({
-//                 progress: prog,
-//             })
+    //             const prog = (snapshot.bytesTransferred / snapshot.totalBytes)
+    //             this.setState({
+    //                 progress: prog,
+    //             })
 
-//             console.warn(`Upload is ${prog}% done`, `state progress ${this.state.progress}%`);
+    //             console.warn(`Upload is ${prog}% done`, `state progress ${this.state.progress}%`);
 
-//             switch (snapshot.state) {
-//                 case firebase.storage.TaskState.SUCCESS: // or 'success'
-//                     console.warn('Upload is complete');
-//                     break;
-//                 case firebase.storage.TaskState.RUNNING: // or 'running'
-//                     console.warn('Upload is running');
-//                     break;
-//                 default:
-//                     console.warn(snapshot.state);
-//             }
-//         }, (error) => {
-//             console.warn(error);
-//         });
+    //             switch (snapshot.state) {
+    //                 case firebase.storage.TaskState.SUCCESS: // or 'success'
+    //                     console.warn('Upload is complete');
+    //                     break;
+    //                 case firebase.storage.TaskState.RUNNING: // or 'running'
+    //                     console.warn('Upload is running');
+    //                     break;
+    //                 default:
+    //                     console.warn(snapshot.state);
+    //             }
+    //         }, (error) => {
+    //             console.warn(error);
+    //         });
 
-//     }
+    //     }
 
-// upload=(fileuri,imageuri,videoSource)=>{
+    // upload=(fileuri,imageuri,videoSource)=>{
 
-//     async.series([
-//         function(callback) {
-//             this.uploadSummaryPickedFile(fileuri,imageuri,videoSource)
-//             callback(null);
-//         },
-//         function(callback) {
-//         this.uploadToFirestore()
-//              callback(null);
-//         }
-//     ],
-//    );
-//  }
+    //     async.series([
+    //         function(callback) {
+    //             this.uploadSummaryPickedFile(fileuri,imageuri,videoSource)
+    //             callback(null);
+    //         },
+    //         function(callback) {
+    //         this.uploadToFirestore()
+    //              callback(null);
+    //         }
+    //     ],
+    //    );
+    //  }
+
+
+    uploadAll = (fileuri, toUploadIm, uploadedIm, videoSource) => {
+        console.warn("I entered uploadSummaryPickedFile")
+        console.warn(this.date)
+        const sumRef = this.sumRef.child(fileuri);
+        return sumRef.putFile(fileuri).then((response) => {
+            console.warn("hii after  putfile in storage trying to get w url", { response })
+            return sumRef.getDownloadURL().then((fileurl) => {
+                console.warn("hi after then the get file dw url", fileurl);
+                return this.setState({ fileurl: fileurl });
+
+            })
+        }).then(() => {
+            const videoRef = this.videoRef.child(videoSource);
+            console.warn("inside the put video file")
+            return videoRef.putFile(videoSource)
+                .then(() => {
+                    console.warn("hii after then putVideo in storage")
+                    //   console.warn(videoSource)
+                    return videoRef.getDownloadURL().then((videourl) => {
+                        console.warn("hi after then the get image dw url", videourl);
+                        return this.setState({
+                            videoUrl: videourl,
+
+                        });
+
+                    })
+
+
+                }).catch((error) => { console.warn("video error", error) })
+
+
+        }).then(() => {
+
+            console.warn("Inside upload multiple")
+            async.map(toUploadIm, async function (image) {
+                console.warn(toUploadIm)
+                //let uploadedIm = []
+                let uri = image.path
+                // console.warn(uri)
+                const directoryRef = firebase.storage().ref('Summaries');
+                const imageRef = directoryRef.child('SummaryImages');
+                const currentRef = imageRef.child(uri);
+                return currentRef.putFile(uri).then(() => {
+                    // console.warn("hii after then putimage in storage")
+                    //  console.warn(uri)
+                    return currentRef.getDownloadURL().then((imageurl) => {
+                        //   console.warn("hi after then the get image dw url", imageurl);
+                        uploadedIm.push(imageurl)
+                        console.warn(uploadedIm)
+                    })
+
+                })
+            }, function (err, results) {
+
+            });
+
+
+
+        })
+            .then(() => {
+                //  console.warn("hi inside upload to firestore")
+                return this.bookRef.collection('itsSummaries').add({
+                    title: this.state.title,
+                    text: this.state.textArea,
+                    pictures: uploadedIm,
+                    username: this.props.username,
+                    time: this.state.createdAt,
+                    file: this.state.fileurl,
+                    fileuri: this.state.fileuri,
+                    fileName: this.state.fileName,
+                    videouri: this.state.videoSource,
+                    // video: video,
+                    date:this.date,
+                    videoUrl: this.state.videoUrl,
+
+                })
+
+
+
+
+            }).then(() => {
+                // console.warn("hi inside then in upload firestore cleaning state")
+                return this.setState({
+                    progress: "Done !",
+                    title: '',
+                    textArea: '',
+                    imageurl: '',
+                    image: null,
+                    fileurl: '',
+                    time: '',
+                    username: '',
+                    userId: '',
+                    fileName: '',
+                    fileuri: '',
+                    imageuri: '',
+                    videoUrl: '',
+                    videoSource: '',
+                    isVisible: false,
+                    uploadedIm: [],
+                    toUploadIm: []
+
+                })
+
+            })
+
+
+
+    }
 
     render() {
- let disabled=( this.state.title === '' || this.state.textArea==='' || this.state.fileuri===''|| this.state.videoSource===''|| this.state.imageuri==='');
-  
-        let submitButton=null;
-        if (disabled){
-        
-        submitButton=(
-          <View style={{alignItems:"center", marginTop:20,marginBottom:20,justifyContent:"center",
-          height:40,paddingLeft:"5%",backgroundColor:"#d7d7bf",flex:1}}>
-          <Text style= {{ color: "#8f8f8f",fontWeight:"bold"}}>Submit  </Text>
-        </View>
-        );}
-        
-        else{
-          submitButton=(
-        <TouchableOpacity style={{alignItems:"center", marginTop:20,marginBottom:20,justifyContent:"center",
-          paddingLeft:"5%",height:40,backgroundColor:"#357180",flex:1}}
-                 onPress={() => {
+        let disabled = (this.state.fileuri === '' && this.state.videoSource === '' && this.state.imageuri === '');
 
-                //    console.warn('submitting');
-                    this.setState({
-                        isVisible: true
-                    });
-                   
-        this.uploadSummaryPickedFile(this.state.fileuri, this.state.imageuri, this.state.videoSource)
-           
+        let submitButton = null;
+        if (disabled) {
+
+            submitButton = (
+                <View style={{
+                    alignItems: "center", marginTop: 20, marginBottom: 20, justifyContent: "center",
+                    height: 40, paddingLeft: "5%", backgroundColor: "#d7d7bf", flex: 1
+                }}>
+                    <Text style={{ color: "#8f8f8f", fontWeight: "bold" }}>Submit  </Text>
+                </View>
+            );
+        }
+
+        else {
+            submitButton = (
+                <TouchableOpacity style={{
+                    alignItems: "center", marginTop: 20, marginBottom: 20, justifyContent: "center",
+                    paddingLeft: "5%", height: 40, backgroundColor: "#357180", flex: 1
                 }}
+                    onPress={() => {
+                        //   console.warn('submitting');
+                        this.setState({
+                            isVisible: true
+                        });
 
-       >
-        
-          <Text style= {{ color: "#e7e7d6",fontWeight:"bold"}}>Submit  </Text>
-        
-        </TouchableOpacity>)
-        
+                        // this.uploadSummaryPickedFile(this.state.fileuri, this.state.imageuri, this.state.videoSource)
+                        // this.UploadMultipe(this.state.toUploadIm, this.state.uploadedIm)
+                        this.uploadAll(this.state.fileuri, this.state.toUploadIm, this.state.uploadedIm, this.state.videoSource)
+                    }}
+
+                >
+
+                    <Text style={{ color: "#e7e7d6", fontWeight: "bold" }}>Submit  </Text>
+
+                </TouchableOpacity>)
+
         }
 
 
@@ -460,48 +635,61 @@ class EnterSummary extends Component {
         return (
 
             <AnimatedHeader
-            style={styles.container}
-            title = 'Express ! Enter your summary'
-            titleStyle = {{ fontSize: 30, left: 1, bottom: 20, color: '#357180', fontWeight: "bold" }}
-            renderLeft={() => (
-            <TouchableOpacity   onPress={() => { this.props.navigation.goBack() }}>
-            <Icon name='ios-arrow-back'
-            
-             size={50} type="ionicon" color="#357180" style={{ marginLeft: 200 }} />
-             </TouchableOpacity>
-              )}
-            backStyle={{ marginLeft: 80, marginRight: 100 }}
-
-            headerMaxHeight={150}
-           // imageSource={require('../../assets/images/header2.jpg')}
-            toolbarColor='#e7e7d6'
-            disabled={false}
-        >
-                <ScrollView>
-                    <View>
-                    <View style={styles.SummaryImage}>
-                        <TouchableOpacity onPress={this.addImageHandler}>
-                            <Avatar
-                                xlarge
-                                source={this.state.image}
-                                activeOpacity={0.7}
-                                icon ={{name:'file-picture-o',type:'font-awesome' ,size:80 , color:"#27636d" }}
-                            />
-                        </TouchableOpacity>
-                    </View>
+                style={styles.container}
               
-                  
- <View style={styles.SubcontainerIcon}>
- <Icon name='magic'type='font-awesome'size={30} color='#357180'/>
-            <TextInput
-              onChangeText={this.titleChanged}
-              style={styles.input}
-              placeholder='Your custom title'
-              value={this.state.title}
-              underlineColorAndroid='transparent'
-            />
-            </View>
-                    
+                renderLeft={() => (
+                    <TouchableOpacity onPress={() => { this.props.navigation.goBack() }}>
+                        <Icon name='ios-arrow-back'
+
+                            size={50} type="ionicon" color="#357180" style={{ paddingLeft: 200 }} />
+                    </TouchableOpacity>
+                )}
+                backStyle={{ marginLeft: 80, marginRight: 100 }}
+
+                headerMaxHeight={320}
+                 imageSource={require("../../assets/images/backg2.jpg")}
+                toolbarColor='#357180'
+                disabled={false}
+            >
+
+            <ScrollView >
+                <KeyboardAvoidingView behavior="padding">
+            
+               <View style={{ flexDirection: "row", marginTop: 10, flex: 1, justifyContent: 'space-between', alignItems: "center" }}>
+                        <TouchableOpacity onPress={this.selectFileTapped}>
+                            <View style={{ elevation: 15, flex: 1, justifyContent: 'flex-start', marginLeft: 20, alignItems: "center" }}>
+                                <Icon reverse name='pin' type="entypo" color='#357180' />
+                                <Text style={{ color: "#357180", fontWeight: "bold", fontSize: 16 }}>Add File</Text>
+                            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={this.selectVideoTapped.bind(this)}>
+                            <View style={{ flex: 1, elevation: 15, justifyContent: 'flex-end', marginRight: 20, alignItems: "center" }}>
+                                <Icon reverse name='video' color='#357180' type="entypo" />
+                                <Text style={{ color: "#357180", fontSize: 16, fontWeight: "bold" }}>Share Video</Text>
+                            </View>
+                        </TouchableOpacity>
+
+                    </View>
+
+                    <TouchableOpacity
+                        onPress={this.addMultipleImageHandler}>
+                        <View style={{ flex: 1, elevation: 15, justifyContent: 'center', alignItems: "center" }}>
+                            <Icon reverse name='add-a-photo' color='#357180' />
+                            <Text style={{ color: "#357180", fontSize: 16, fontWeight: "bold" }}>Add Photos</Text>
+                        </View>
+                    </TouchableOpacity>
+                    <View style={styles.SubcontainerIcon}>
+                        <Icon name='magic' type='font-awesome' size={30} color='#357180' />
+                        <TextInput
+                            onChangeText={this.titleChanged}
+                            style={styles.input}
+                            placeholder='Your custom title'
+                            value={this.state.title}
+                            underlineColorAndroid='transparent'
+                        />
+                    </View>
+
 
 
                     {/* <AutoGrowingTextInput
@@ -517,44 +705,28 @@ class EnterSummary extends Component {
 
                     /> */}
 
-                   
-            <View style={styles.SubcontainerIcon}>
-            <Icon name='sticker-emoji'type='material-community'size={30} color='#357180'/>
-             <AutoGrowingTextInput
-                        style={styles.input}
-                        placeholder={"Tell us about your summary"}
-                        onChange={(event) => this.onChange(event)}
-                        maxHeight={200}
-                        minHeight={45}
-                        enableScrollToCaret
-                        value={this.state.textArea}
-  />
-          </View>
 
- <View style={{flexDirection:"row",marginTop:15,flex:1,justifyContent: 'space-between',alignItems:"center"}}>
-                    <TouchableOpacity  onPress={this.selectFileTapped}>
-                    <View  style={{flexDirection:"row",elevation:15,flex:1,justifyContent: 'flex-start', marginLeft:20,alignItems:"center"}}>
-                    <Icon  reverse name='pin' type="entypo"color='#357180' />
-                        <Text style={{color:"#357180",fontWeight:"bold",fontSize:16}}>File</Text>
+                    <View style={styles.SubcontainerIcon}>
+                        <Icon name='sticker-emoji' type='material-community' size={30} color='#357180' />
+                        <AutoGrowingTextInput
+                            style={styles.input}
+                            placeholder={"Tell us about your summary"}
+                            onChange={(event) => this.onChange(event)}
+                            maxHeight={200}
+                            minHeight={45}
+                            enableScrollToCaret
+                            value={this.state.textArea}
+                        />
                     </View>
-                       </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={this.selectVideoTapped.bind(this)}>
-                        <View  style={{flexDirection:"row",flex:1,elevation:15,justifyContent: 'flex-end',marginRight:20,alignItems:"center"}}>
-                    <Icon  reverse name='video'color='#357180' type="entypo" />
-                        <Text style={{color:"#357180",fontSize:16,fontWeight:"bold"}}>Share Video</Text>
-                    </View>
-                     </TouchableOpacity>
-                     </View>
 
-                  
 
-                 
-                 
-                 
-                 
-                 
-{/*                  
+
+
+
+
+
+
+                    {/*                  
                 <CustomButton color="#bb5538"
                         onPress={this.selectFileTapped}
                         textcolor="#e7e7d6">pick from device</CustomButton>
@@ -582,20 +754,20 @@ class EnterSummary extends Component {
                         }}
                         textcolor="#e7e7d6">submit</CustomButton> */}
 
-<View style={styles.Subcontainer}>
+                    <View style={styles.Subcontainer}>
 
-{submitButton}
-</View>
+                        {submitButton}
+                    </View>
 
-  {this.state.isVisible && (<Uploader progress={this.state.progress} />)}
+                    {this.state.isVisible && (<Uploader progress={this.state.progress} />)}
 
 
-  </View>
-                </ScrollView>
-              
+              </KeyboardAvoidingView>
+            </ScrollView>
+            </AnimatedHeader>
 
-        
-        </AnimatedHeader>
+
+
 
         );
     }
@@ -608,9 +780,9 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: "#27636d",
         marginTop: 20
-    
-    
-      },
+
+
+    },
     field: {
         width: "30%",
         marginTop: 25,
@@ -624,8 +796,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#e7e7d6',
 
     },
-   
-      
+
+
 
     input: {
         borderBottomColor: "#27636d",
@@ -633,36 +805,36 @@ const styles = StyleSheet.create({
         color: "#27636d",
         width: "80%",
         alignItems: "center",
-        marginLeft:"5%"
+        marginLeft: "5%"
     },
-   
-      SubcontainerIcon: {
+
+    SubcontainerIcon: {
 
         flex: 1,
-     backgroundColor: '#e7e7d6',
-     alignItems:"center",
-     marginTop:5,
-    flexDirection:"row",
-    paddingLeft:"5%"
-    
-      },
-      Subcontainer: {
+        backgroundColor: '#e7e7d6',
+        alignItems: "center",
+        marginTop: 5,
+        flexDirection: "row",
+        paddingLeft: "5%"
+
+    },
+    Subcontainer: {
 
         flex: 1,
-     backgroundColor: '#e7e7d6',
-     alignItems:"center",
-     marginTop:5,
-     flexDirection:"row",
-    paddingLeft:"5%",
-    paddingRight:"5%",
-    
-      },
+        backgroundColor: '#e7e7d6',
+        alignItems: "center",
+        marginTop: 5,
+        flexDirection: "row",
+        paddingLeft: "5%",
+        paddingRight: "5%",
+
+    },
     SummaryImage: {
         marginTop: 10,
         alignItems: "center",
         marginBottom: 5,
         justifyContent: "center",
-        marginTop:5
+        marginTop: 5
 
 
     },
